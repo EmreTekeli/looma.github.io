@@ -493,12 +493,12 @@
             let imageLoaded = false;
             let sourceImage = null;
 
-            // Mouse state - çok az dağılma
+            // Mouse state - optimize edilmiş
             const mouse = {
                 x: 0,
                 y: 0,
-                radius: 80, // Etki alanı küçültüldü
-                strength: 0.3, // Kuvvet çok azaldı
+                radius: 120, // Etki alanı arttırıldı
+                strength: 1.0, // Kuvvet orijinal seviyeye döndü (responsif)
                 active: false
             };
 
@@ -518,12 +518,12 @@
                 }
 
                 update() {
-                    // Spring force - orijinal konuma çekme (azaltıldı)
+                    // Spring force - orijinal konuma çekme (optimize edilmiş)
                     const dx = this.ox - this.x;
                     const dy = this.oy - this.y;
 
-                    this.vx += dx * 0.01; // springForce azaldı
-                    this.vy += dy * 0.01;
+                    this.vx += dx * 0.05; // springForce arttırıldı (5x daha responsif)
+                    this.vy += dy * 0.05;
 
                     // Mouse etkileşimi (çok zayıf)
                     if (mouse.active) {
@@ -540,9 +540,9 @@
                         }
                     }
 
-                    // Sürtünme (daha yüksek)
-                    this.vx *= 0.92;
-                    this.vy *= 0.92;
+                    // Sürtünme (optimize edilmiş - daha responsive)
+                    this.vx *= 0.85;
+                    this.vy *= 0.85;
 
                     // Pozisyon güncelleme
                     this.x += this.vx;
@@ -621,8 +621,8 @@
                 const imageData = tempCtx.getImageData(0, 0, imgWidth, imgHeight);
                 const data = imageData.data;
 
-                // Piksel spacing (3px aralık = daha detaylı silüet)
-                const pixelSize = 3; // 3px = iyi silüet detayı
+                // Piksel spacing (2px aralık = detaylı ve smooth)
+                const pixelSize = 2; // 2px = optimal detay (4x daha detaylı)
 
                 // Her pixel'i kontrol et
                 for (let y = 0; y < imgHeight; y += pixelSize) {
@@ -633,8 +633,8 @@
                         const b = data[index + 2];
                         const a = data[index + 3]; // Alpha channel
 
-                        // Şeffaf olmayan pixel'leri seç (daha esnekli)
-                        if (a > 80) {
+                        // Şeffaf olmayan pixel'leri seç (daha detaylı kenarlar)
+                        if (a > 30) {
                             // Brightness hesapla (luminance formula)
                             const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
 
@@ -650,28 +650,19 @@
                 console.log(`Particles created: ${particles.length}`);
             }
 
-            // Animasyon döngüsü (yüksek performans)
-            let frameCount = 0;
-            const updateFrequency = 2; // Her 2 frame'de bir update (30 FPS update, 60 FPS render)
-
+            // Animasyon döngüsü (optimize edilmiş)
             function animate() {
-                // Canvas temizle (motion blur kaldırıldı - performans)
+                // Canvas temizle
                 ctx.fillStyle = 'rgba(5, 6, 10, 1)';
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-                // Particle update frequency - performans için
-                if (frameCount % updateFrequency === 0) {
-                    for (let i = 0; i < particles.length; i++) {
-                        particles[i].update();
-                    }
-                }
-
-                // Draw her frame
-                for (let i = 0; i < particles.length; i++) {
+                // Update ve draw - optimized loop
+                const len = particles.length;
+                for (let i = 0; i < len; i++) {
+                    particles[i].update();
                     particles[i].draw();
                 }
 
-                frameCount++;
                 animationFrameId = requestAnimationFrame(animate);
             }
 

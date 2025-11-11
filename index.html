@@ -227,19 +227,91 @@
                     </div>
                 </div>
 
-                <!-- Sağ Kolon - Canvas Animasyon -->
+                <!-- Sağ Kolon - Canvas Animasyon ve Kıyafet Logları -->
                 <div class="relative w-full animate-fade-in animate-delay-200">
-                    <div class="scanline-container relative aspect-square max-h-[250px] md:max-h-[450px] lg:max-h-[550px] w-full rounded-lg glass-effect overflow-hidden border-2 border-white/20 shadow-xl shadow-black/30 transition-all duration-300 hover:border-white/30">
-                        <!-- Live Preview Badge -->
-                        <div class="live-badge absolute top-4 left-4 z-10 px-4 py-2 bg-black/70 backdrop-blur-sm rounded-sm border-2 border-looma-accent/50 transition-all duration-300 hover:border-looma-accent">
-                            <span class="text-xs font-bold tracking-widest uppercase text-looma-accent pixel-heading flex items-center gap-2">
-                                <span class="w-2 h-2 bg-looma-accent rounded-full animate-pulse"></span>
-                                LIVE
-                            </span>
+                    <div class="flex items-center justify-center gap-8 lg:gap-12">
+                        <!-- Sol - Kıyafet Logları -->
+                        <div class="hidden lg:flex flex-col gap-6">
+                            <!-- T-Shirt/Üst -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.2s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 3h-3V1h-2v2H8l-2 4v3h1v11h10V10h1V7l-2-4zm-1 16H9V10h6v9z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">ÜST</span>
+                            </div>
+
+                            <!-- Pants/Alt -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.3s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5h14v4H5V5zm0 4v10a2 2 0 002 2h2v2h6v-2h2a2 2 0 002-2V9H5z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">ALT</span>
+                            </div>
+
+                            <!-- Shoes/Ayakkabı -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.4s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h3v8H3v-8zm6 0h3v8H9v-8zm6 0h3v8h-3v-8zm6-2l-1 2h1V4l-4 2v6h4v6h-4l1-2h4z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">AYAKKABI</span>
+                            </div>
+
+                            <!-- Accessories/Aksesuar -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.5s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4a3 3 0 100 6 3 3 0 000-6zM4 12a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm6 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6zm6 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">AKSESUAR</span>
+                            </div>
                         </div>
 
-                        <!-- Canvas -->
-                        <canvas id="looma-hero-canvas" class="w-full h-full"></canvas>
+                        <!-- Orta - Canvas (Çerçevesiz) -->
+                        <div class="relative aspect-square max-h-[250px] md:max-h-[450px] lg:max-h-[550px] w-full lg:w-auto flex-1">
+                            <canvas id="looma-hero-canvas" class="w-full h-full"></canvas>
+                        </div>
+
+                        <!-- Sağ - Kıyafet Logları (Sol ile aynı) -->
+                        <div class="hidden lg:flex flex-col gap-6">
+                            <!-- T-Shirt/Üst -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.2s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 3h-3V1h-2v2H8l-2 4v3h1v11h10V10h1V7l-2-4zm-1 16H9V10h6v9z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">ÜST</span>
+                            </div>
+
+                            <!-- Pants/Alt -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.3s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5h14v4H5V5zm0 4v10a2 2 0 002 2h2v2h6v-2h2a2 2 0 002-2V9H5z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">ALT</span>
+                            </div>
+
+                            <!-- Shoes/Ayakkabı -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.4s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h3v8H3v-8zm6 0h3v8H9v-8zm6 0h3v8h-3v-8zm6-2l-1 2h1V4l-4 2v6h4v6h-4l1-2h4z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">AYAKKABI</span>
+                            </div>
+
+                            <!-- Accessories/Aksesuar -->
+                            <div class="group flex flex-col items-center gap-2 p-4 rounded-sm border-2 border-white/10 hover:border-looma-accent/50 transition-all duration-300 hover:bg-white/5 animate-fade-in animate-delay-100"
+                                 style="animation-delay: 0.5s">
+                                <svg class="w-8 h-8 text-looma-accent group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4a3 3 0 100 6 3 3 0 000-6zM4 12a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm6 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6zm6 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                                </svg>
+                                <span class="text-xs font-bold uppercase text-looma-muted/70 group-hover:text-looma-accent transition-colors pixel-heading">AKSESUAR</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

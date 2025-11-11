@@ -495,8 +495,8 @@
             const mouse = {
                 x: 0,
                 y: 0,
-                radius: 120,
-                strength: 0.5,
+                radius: 150,
+                strength: 0.7,
                 active: false
             };
 
@@ -509,8 +509,9 @@
                     this.y = y;
                     this.vx = 0;
                     this.vy = 0;
-                    this.size = 2 + Math.random() * 1; // 2 - 3
-                    this.alpha = 0.6 + Math.random() * 0.3; // 0.6 - 0.9
+                    this.size = 1.2 + Math.random() * 0.6; // 1.2 - 1.8 (daha küçük, detaylı)
+                    this.alpha = 0.5 + Math.random() * 0.45; // 0.5 - 0.95 (daha çeşitli)
+                    this.hue = Math.random() * 60; // 0-60 derece (mavi-yeşil tonları)
                 }
 
                 update() {
@@ -549,7 +550,15 @@
                 draw() {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(229, 231, 235, ${this.alpha})`;
+                    // Gradient renk efekti - mavi-yeşil-cyan tonları
+                    const hslColor = `hsla(${190 + this.hue}, 70%, 55%, ${this.alpha})`;
+                    ctx.fillStyle = hslColor;
+                    ctx.fill();
+
+                    // Parlak efekt - merkez
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * 0.4, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * 0.6})`;
                     ctx.fill();
                 }
             }
@@ -635,8 +644,8 @@
             // Telefon silüeti şeklinde particle oluştur
             function createPhoneSilhouette(centerX, centerY, phoneW, phoneH) {
                 particles = [];
-                const spacing = 8; // Piksel aralığı
-                const jitter = 2; // Rastgelelik için
+                const spacing = 4; // Piksel aralığı (daha detaylı, 2x küçük)
+                const jitter = 1; // Rastgelelik için (daha hassas)
 
                 // Grid tarama
                 const left = centerX - phoneW / 2;

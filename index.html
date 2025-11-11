@@ -506,6 +506,15 @@
             let phoneX = 0;
             let phoneY = 0;
 
+            // 3D efekt için mouse tracking (subtle)
+            const mouse = {
+                x: 0.5,
+                y: 0.5,
+                active: false
+            };
+
+            let floatOffset = 0;
+
             // Canvas boyutunu ayarlama
             function resizeCanvas() {
                 const rect = canvas.getBoundingClientRect();
@@ -531,31 +540,50 @@
                 const cornerRadius = 8;
                 const borderWidth = 3;
 
+                // Subtle 3D offset (mouse-based)
+                const offsetX = (mouse.x - 0.5) * 6;
+                const offsetY = (mouse.y - 0.5) * 6 + floatOffset;
+
+                // Gölge (3D depth için)
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = -offsetX * 0.5;
+                ctx.shadowOffsetY = 8 + (-offsetY * 0.3);
+
                 // Telefon gövdesi
                 ctx.fillStyle = '#0F1117';
                 ctx.strokeStyle = '#E5E7EB';
                 ctx.lineWidth = borderWidth;
 
+                const pX = phoneX + offsetX;
+                const pY = phoneY + offsetY;
+
                 // Rounded rectangle için path
                 ctx.beginPath();
-                ctx.moveTo(phoneX + cornerRadius, phoneY);
-                ctx.lineTo(phoneX + phoneWidth - cornerRadius, phoneY);
-                ctx.arcTo(phoneX + phoneWidth, phoneY, phoneX + phoneWidth, phoneY + cornerRadius, cornerRadius);
-                ctx.lineTo(phoneX + phoneWidth, phoneY + phoneHeight - cornerRadius);
-                ctx.arcTo(phoneX + phoneWidth, phoneY + phoneHeight, phoneX + phoneWidth - cornerRadius, phoneY + phoneHeight, cornerRadius);
-                ctx.lineTo(phoneX + cornerRadius, phoneY + phoneHeight);
-                ctx.arcTo(phoneX, phoneY + phoneHeight, phoneX, phoneY + phoneHeight - cornerRadius, cornerRadius);
-                ctx.lineTo(phoneX, phoneY + cornerRadius);
-                ctx.arcTo(phoneX, phoneY, phoneX + cornerRadius, phoneY, cornerRadius);
+                ctx.moveTo(pX + cornerRadius, pY);
+                ctx.lineTo(pX + phoneWidth - cornerRadius, pY);
+                ctx.arcTo(pX + phoneWidth, pY, pX + phoneWidth, pY + cornerRadius, cornerRadius);
+                ctx.lineTo(pX + phoneWidth, pY + phoneHeight - cornerRadius);
+                ctx.arcTo(pX + phoneWidth, pY + phoneHeight, pX + phoneWidth - cornerRadius, pY + phoneHeight, cornerRadius);
+                ctx.lineTo(pX + cornerRadius, pY + phoneHeight);
+                ctx.arcTo(pX, pY + phoneHeight, pX, pY + phoneHeight - cornerRadius, cornerRadius);
+                ctx.lineTo(pX, pY + cornerRadius);
+                ctx.arcTo(pX, pY, pX + cornerRadius, pY, cornerRadius);
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
 
+                // Gölgeyi sıfırla
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+
                 // Notch (üst çentik)
                 const notchWidth = phoneWidth * 0.3;
                 const notchHeight = 6;
-                const notchX = phoneX + (phoneWidth - notchWidth) / 2;
-                const notchY = phoneY + 8;
+                const notchX = pX + (phoneWidth - notchWidth) / 2;
+                const notchY = pY + 8;
 
                 ctx.fillStyle = '#05060A';
                 ctx.fillRect(notchX, notchY, notchWidth, notchHeight);
@@ -563,8 +591,8 @@
                 // Home indicator (alt çizgi)
                 const indicatorWidth = phoneWidth * 0.35;
                 const indicatorHeight = 4;
-                const indicatorX = phoneX + (phoneWidth - indicatorWidth) / 2;
-                const indicatorY = phoneY + phoneHeight - 12;
+                const indicatorX = pX + (phoneWidth - indicatorWidth) / 2;
+                const indicatorY = pY + phoneHeight - 12;
 
                 ctx.fillStyle = '#4B5563';
                 ctx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
@@ -573,8 +601,13 @@
             // Kıyafet kartı çiz
             function drawOutfitCard(category, offsetX) {
                 const cardPadding = 20;
-                const cardX = phoneX + cardPadding + offsetX;
-                const cardY = phoneY + 40;
+
+                // 3D offset (telefon ile aynı)
+                const offset3DX = (mouse.x - 0.5) * 6;
+                const offset3DY = (mouse.y - 0.5) * 6 + floatOffset;
+
+                const cardX = phoneX + cardPadding + offsetX + offset3DX;
+                const cardY = phoneY + 40 + offset3DY;
                 const cardWidth = phoneWidth - (cardPadding * 2);
                 const cardHeight = phoneHeight - 80;
 
@@ -597,43 +630,66 @@
                     const itemY = cardY + 70 + (index * itemHeight);
                     const itemX = cardX + cardWidth / 2;
 
+                    // Her kıyafete depth layering (paralaks)
+                    const depthOffset = (index + 1) * 2;
+                    const itemOffsetX = (mouse.x - 0.5) * depthOffset;
+                    const itemOffsetY = (mouse.y - 0.5) * depthOffset;
+
                     // Kıyafet kutusu
                     const boxSize = Math.min(cardWidth * 0.6, itemHeight * 0.6);
                     ctx.fillStyle = 'rgba(229, 231, 235, 0.1)';
-                    ctx.fillRect(itemX - boxSize/2, itemY, boxSize, boxSize);
+                    ctx.fillRect(itemX - boxSize/2 + itemOffsetX, itemY + itemOffsetY, boxSize, boxSize);
+
+                    // Kıyafet ikonu gölgesi (3D için)
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 3;
 
                     // Kıyafet ikonu (basit şekil)
                     ctx.fillStyle = '#9CA3AF';
 
+                    const iX = itemX + itemOffsetX;
+                    const iY = itemY + itemOffsetY;
+
                     if (category.name === 'UST') {
                         // T-shirt şekli
-                        ctx.fillRect(itemX - boxSize*0.3, itemY + boxSize*0.2, boxSize*0.6, boxSize*0.5);
-                        ctx.fillRect(itemX - boxSize*0.4, itemY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
-                        ctx.fillRect(itemX + boxSize*0.2, itemY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
+                        ctx.fillRect(iX - boxSize*0.3, iY + boxSize*0.2, boxSize*0.6, boxSize*0.5);
+                        ctx.fillRect(iX - boxSize*0.4, iY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
+                        ctx.fillRect(iX + boxSize*0.2, iY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
                     } else if (category.name === 'ALT') {
                         // Pantolon şekli
-                        ctx.fillRect(itemX - boxSize*0.3, itemY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
-                        ctx.fillRect(itemX + boxSize*0.05, itemY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
+                        ctx.fillRect(iX - boxSize*0.3, iY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
+                        ctx.fillRect(iX + boxSize*0.05, iY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
                     } else if (category.name === 'AYAKKABI') {
                         // Ayakkabı şekli
-                        ctx.fillRect(itemX - boxSize*0.3, itemY + boxSize*0.5, boxSize*0.6, boxSize*0.25);
-                        ctx.fillRect(itemX - boxSize*0.2, itemY + boxSize*0.35, boxSize*0.4, boxSize*0.2);
+                        ctx.fillRect(iX - boxSize*0.3, iY + boxSize*0.5, boxSize*0.6, boxSize*0.25);
+                        ctx.fillRect(iX - boxSize*0.2, iY + boxSize*0.35, boxSize*0.4, boxSize*0.2);
                     } else if (category.name === 'AKSESUAR') {
                         // Aksesuar (daire)
                         ctx.beginPath();
-                        ctx.arc(itemX, itemY + boxSize*0.5, boxSize*0.25, 0, Math.PI * 2);
+                        ctx.arc(iX, iY + boxSize*0.5, boxSize*0.25, 0, Math.PI * 2);
                         ctx.fill();
                     }
+
+                    // Gölgeyi sıfırla
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
 
                     // İsim
                     ctx.fillStyle = '#B8BBC3';
                     ctx.font = '12px "Pixelify Sans", monospace';
-                    ctx.fillText(item, itemX, itemY + boxSize + 20);
+                    ctx.fillText(item, iX, iY + boxSize + 20);
                 });
             }
 
             // Ana animasyon döngüsü
             function animate() {
+                // Float efekti (yukarı aşağı yavaş hareket)
+                floatOffset = Math.sin(Date.now() * 0.001) * 3;
+
                 // Arka plan temizle
                 ctx.fillStyle = '#05060A';
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -661,12 +717,15 @@
                     currentSlide = nextSlide;
                 }
 
-                // Progress indicator (alttta noktalar)
+                // Progress indicator (alttta noktalar) - 3D offset ile
+                const offset3DX = (mouse.x - 0.5) * 6;
+                const offset3DY = (mouse.y - 0.5) * 6 + floatOffset;
+
                 const dotSize = 6;
                 const dotSpacing = 16;
                 const totalWidth = (outfitCategories.length * dotSpacing) - dotSpacing;
-                const startX = phoneX + (phoneWidth - totalWidth) / 2;
-                const dotY = phoneY + phoneHeight + 20;
+                const startX = phoneX + (phoneWidth - totalWidth) / 2 + offset3DX;
+                const dotY = phoneY + phoneHeight + 20 + offset3DY;
 
                 outfitCategories.forEach((_, index) => {
                     ctx.fillStyle = index === currentSlide ? '#E5E7EB' : 'rgba(229, 231, 235, 0.3)';
@@ -675,6 +734,47 @@
 
                 animationFrameId = requestAnimationFrame(animate);
             }
+
+            // Mouse event listeners (subtle 3D için)
+            canvas.addEventListener('mouseenter', () => {
+                mouse.active = true;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                mouse.active = false;
+                mouse.x = 0.5;
+                mouse.y = 0.5;
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = (e.clientX - rect.left) / rect.width;
+                mouse.y = (e.clientY - rect.top) / rect.height;
+            });
+
+            // Touch support
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                mouse.active = true;
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mouse.x = (touch.clientX - rect.left) / rect.width;
+                mouse.y = (touch.clientY - rect.top) / rect.height;
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mouse.x = (touch.clientX - rect.left) / rect.width;
+                mouse.y = (touch.clientY - rect.top) / rect.height;
+            });
+
+            canvas.addEventListener('touchend', () => {
+                mouse.active = false;
+                mouse.x = 0.5;
+                mouse.y = 0.5;
+            });
 
             // Resize event
             let resizeTimeout;

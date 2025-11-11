@@ -631,44 +631,56 @@
                 const imageData = tempCtx.getImageData(0, 0, imgWidth, imgHeight);
                 const data = imageData.data;
 
-                // Piksel spacing (2px aralık = daha detaylı)
-                const pixelSize = 2; // 2px = 4x daha detaylı
-                const alphaThreshold = 30; // Yarı şeffaf pixel'leri de seç
+                // Piksel spacing (3px aralık = detaylı ama optimize)
+                const pixelSize = 3; // 3px = iyi balans (detaylı + hızlı)
+
+                // Scan sayısını say
+                let scannedPixels = 0;
+                let selectedPixels = 0;
 
                 // Her pixel'i kontrol et
                 for (let y = 0; y < imgHeight; y += pixelSize) {
                     for (let x = 0; x < imgWidth; x += pixelSize) {
+                        scannedPixels++;
                         const index = (y * imgWidth + x) * 4;
-                        const r = data[index];
-                        const g = data[index + 1];
-                        const b = data[index + 2];
-                        const a = data[index + 3];
+                        const a = data[index + 3]; // Sadece alpha channel kontrol et
 
-                        // Alpha check - görünür pixel'leri seç
-                        if (a > alphaThreshold) {
+                        // Şeffaf olmayan pixel'leri seç (tüm renkleri dahil et)
+                        if (a > 50) {
+                            selectedPixels++;
                             // Jitter ekle
-                            const px = offsetX + x * scale + (Math.random() - 0.5) * 2;
-                            const py = offsetY + y * scale + (Math.random() - 0.5) * 2;
+                            const px = offsetX + x * scale + (Math.random() - 0.5) * 3;
+                            const py = offsetY + y * scale + (Math.random() - 0.5) * 3;
 
                             particles.push(new Particle(px, py));
                         }
                     }
                 }
 
-                console.log(`Particles created: ${particles.length}`);
+                console.log(`Pixels: ${selectedPixels}/${scannedPixels} selected, Particles: ${particles.length}`);
             }
 
-            // Animasyon döngüsü
-            function animate() {
-                // Motion blur için hafif şeffaf dolgu
-                ctx.fillStyle = 'rgba(5, 6, 10, 0.2)';
+            // Animasyon döngüsü (optimize edilmiş)
+            let lastFrameTime = 0;
+            const frameInterval = 1000 / 60; // 60 FPS cap
+
+            function animate(currentTime) {
+                // FPS limiting - her 16.67ms'de bir frame (60 FPS)
+                if (currentTime - lastFrameTime < frameInterval) {
+                    animationFrameId = requestAnimationFrame(animate);
+                    return;
+                }
+                lastFrameTime = currentTime;
+
+                // Motion blur - çok hafif (performans için)
+                ctx.fillStyle = 'rgba(5, 6, 10, 0.15)';
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
                 // Her particle'ı güncelle ve çiz
-                particles.forEach(particle => {
-                    particle.update();
-                    particle.draw();
-                });
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
 
                 animationFrameId = requestAnimationFrame(animate);
             }

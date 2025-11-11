@@ -478,7 +478,7 @@
     <!-- JAVASCRIPT -->
     <script>
         // ==========================================
-        // CANVAS PARTICLE ANIMATION
+        // MOBILE APP MOCKUP ANIMATION
         // ==========================================
 
         (function() {
@@ -486,70 +486,25 @@
             if (!canvas) return;
 
             const ctx = canvas.getContext('2d');
-            let particles = [];
             let animationFrameId = null;
+            let currentSlide = 0;
+            let slideProgress = 0;
+            const slideSpeed = 0.008;
 
-            // Mouse state
-            const mouse = {
-                x: 0,
-                y: 0,
-                radius: 120,
-                strength: 0.4,
-                active: false
-            };
+            // Kıyafet kategorileri
+            const outfitCategories = [
+                { name: 'UST', items: ['GOMLEK', 'TSHIRT', 'SWEATSHIRT'] },
+                { name: 'ALT', items: ['JEAN', 'PANTOLON', 'SORT'] },
+                { name: 'AYAKKABI', items: ['SNEAKER', 'BOT', 'AYAKKABI'] },
+                { name: 'AKSESUAR', items: ['SAAT', 'GOZLUK', 'SAPKA'] }
+            ];
 
-            // Particle sınıfı
-            class Particle {
-                constructor(x, y) {
-                    this.ox = x; // Original x
-                    this.oy = y; // Original y
-                    this.x = x;
-                    this.y = y;
-                    this.vx = 0;
-                    this.vy = 0;
-                    this.size = 2; // Square pixel
-                    this.alpha = 0.7 + Math.random() * 0.3; // 0.7 - 1.0
-                }
-
-                update() {
-                    // Spring force - orijinal konuma çekme
-                    const springForce = 0.018;
-                    this.vx += (this.ox - this.x) * springForce;
-                    this.vy += (this.oy - this.y) * springForce;
-
-                    // Mouse etkileşimi
-                    if (mouse.active) {
-                        const dx = this.x - mouse.x;
-                        const dy = this.y - mouse.y;
-                        const distSq = dx * dx + dy * dy;
-                        const radiusSq = mouse.radius * mouse.radius;
-
-                        if (distSq < radiusSq && distSq > 0) {
-                            const dist = Math.sqrt(distSq);
-                            const force = (1 - dist / mouse.radius) * mouse.strength;
-                            const nx = dx / dist;
-                            const ny = dy / dist;
-
-                            this.vx += nx * force * 4;
-                            this.vy += ny * force * 4;
-                        }
-                    }
-
-                    // Sürtünme
-                    this.vx *= 0.9;
-                    this.vy *= 0.9;
-
-                    // Pozisyon güncelleme
-                    this.x += this.vx;
-                    this.y += this.vy;
-                }
-
-                draw() {
-                    // Pixel style - square particles
-                    ctx.fillStyle = `rgba(229, 231, 235, ${this.alpha})`;
-                    ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
-                }
-            }
+            let canvasWidth = 0;
+            let canvasHeight = 0;
+            let phoneWidth = 0;
+            let phoneHeight = 0;
+            let phoneX = 0;
+            let phoneY = 0;
 
             // Canvas boyutunu ayarlama
             function resizeCanvas() {
@@ -561,82 +516,165 @@
 
                 ctx.scale(dpr, dpr);
 
-                // Particle grid'ini oluştur
-                createParticles(rect.width, rect.height);
+                canvasWidth = rect.width;
+                canvasHeight = rect.height;
+
+                // Telefon boyutları (canvas'ın %60'ı)
+                phoneHeight = canvasHeight * 0.7;
+                phoneWidth = phoneHeight * 0.5; // 9:18 aspect ratio
+                phoneX = (canvasWidth - phoneWidth) / 2;
+                phoneY = (canvasHeight - phoneHeight) / 2;
             }
 
-            // Particle grid oluşturma
-            function createParticles(width, height) {
-                particles = [];
-                const spacing = 20;
-                const margin = 25;
+            // Mobil telefon çerçevesi çiz
+            function drawPhone() {
+                const cornerRadius = 8;
+                const borderWidth = 3;
 
-                const cols = Math.floor((width - margin * 2) / spacing);
-                const rows = Math.floor((height - margin * 2) / spacing);
+                // Telefon gövdesi
+                ctx.fillStyle = '#0F1117';
+                ctx.strokeStyle = '#E5E7EB';
+                ctx.lineWidth = borderWidth;
 
-                const offsetX = (width - (cols - 1) * spacing) / 2;
-                const offsetY = (height - (rows - 1) * spacing) / 2;
+                // Rounded rectangle için path
+                ctx.beginPath();
+                ctx.moveTo(phoneX + cornerRadius, phoneY);
+                ctx.lineTo(phoneX + phoneWidth - cornerRadius, phoneY);
+                ctx.arcTo(phoneX + phoneWidth, phoneY, phoneX + phoneWidth, phoneY + cornerRadius, cornerRadius);
+                ctx.lineTo(phoneX + phoneWidth, phoneY + phoneHeight - cornerRadius);
+                ctx.arcTo(phoneX + phoneWidth, phoneY + phoneHeight, phoneX + phoneWidth - cornerRadius, phoneY + phoneHeight, cornerRadius);
+                ctx.lineTo(phoneX + cornerRadius, phoneY + phoneHeight);
+                ctx.arcTo(phoneX, phoneY + phoneHeight, phoneX, phoneY + phoneHeight - cornerRadius, cornerRadius);
+                ctx.lineTo(phoneX, phoneY + cornerRadius);
+                ctx.arcTo(phoneX, phoneY, phoneX + cornerRadius, phoneY, cornerRadius);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
 
-                for (let i = 0; i < cols; i++) {
-                    for (let j = 0; j < rows; j++) {
-                        const x = offsetX + i * spacing;
-                        const y = offsetY + j * spacing;
-                        particles.push(new Particle(x, y));
+                // Notch (üst çentik)
+                const notchWidth = phoneWidth * 0.3;
+                const notchHeight = 6;
+                const notchX = phoneX + (phoneWidth - notchWidth) / 2;
+                const notchY = phoneY + 8;
+
+                ctx.fillStyle = '#05060A';
+                ctx.fillRect(notchX, notchY, notchWidth, notchHeight);
+
+                // Home indicator (alt çizgi)
+                const indicatorWidth = phoneWidth * 0.35;
+                const indicatorHeight = 4;
+                const indicatorX = phoneX + (phoneWidth - indicatorWidth) / 2;
+                const indicatorY = phoneY + phoneHeight - 12;
+
+                ctx.fillStyle = '#4B5563';
+                ctx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+            }
+
+            // Kıyafet kartı çiz
+            function drawOutfitCard(category, offsetX) {
+                const cardPadding = 20;
+                const cardX = phoneX + cardPadding + offsetX;
+                const cardY = phoneY + 40;
+                const cardWidth = phoneWidth - (cardPadding * 2);
+                const cardHeight = phoneHeight - 80;
+
+                // Kart arka planı
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.strokeStyle = 'rgba(229, 231, 235, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
+                ctx.strokeRect(cardX, cardY, cardWidth, cardHeight);
+
+                // Kategori başlığı
+                ctx.fillStyle = '#E5E7EB';
+                ctx.font = 'bold 16px "Pixelify Sans", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(category.name, cardX + cardWidth / 2, cardY + 40);
+
+                // Kıyafet siluetleri (3 adet)
+                const itemHeight = (cardHeight - 120) / 3;
+                category.items.forEach((item, index) => {
+                    const itemY = cardY + 70 + (index * itemHeight);
+                    const itemX = cardX + cardWidth / 2;
+
+                    // Kıyafet kutusu
+                    const boxSize = Math.min(cardWidth * 0.6, itemHeight * 0.6);
+                    ctx.fillStyle = 'rgba(229, 231, 235, 0.1)';
+                    ctx.fillRect(itemX - boxSize/2, itemY, boxSize, boxSize);
+
+                    // Kıyafet ikonu (basit şekil)
+                    ctx.fillStyle = '#9CA3AF';
+
+                    if (category.name === 'UST') {
+                        // T-shirt şekli
+                        ctx.fillRect(itemX - boxSize*0.3, itemY + boxSize*0.2, boxSize*0.6, boxSize*0.5);
+                        ctx.fillRect(itemX - boxSize*0.4, itemY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
+                        ctx.fillRect(itemX + boxSize*0.2, itemY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
+                    } else if (category.name === 'ALT') {
+                        // Pantolon şekli
+                        ctx.fillRect(itemX - boxSize*0.3, itemY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
+                        ctx.fillRect(itemX + boxSize*0.05, itemY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
+                    } else if (category.name === 'AYAKKABI') {
+                        // Ayakkabı şekli
+                        ctx.fillRect(itemX - boxSize*0.3, itemY + boxSize*0.5, boxSize*0.6, boxSize*0.25);
+                        ctx.fillRect(itemX - boxSize*0.2, itemY + boxSize*0.35, boxSize*0.4, boxSize*0.2);
+                    } else if (category.name === 'AKSESUAR') {
+                        // Aksesuar (daire)
+                        ctx.beginPath();
+                        ctx.arc(itemX, itemY + boxSize*0.5, boxSize*0.25, 0, Math.PI * 2);
+                        ctx.fill();
                     }
-                }
+
+                    // İsim
+                    ctx.fillStyle = '#B8BBC3';
+                    ctx.font = '12px "Pixelify Sans", monospace';
+                    ctx.fillText(item, itemX, itemY + boxSize + 20);
+                });
             }
 
-            // Animasyon döngüsü
+            // Ana animasyon döngüsü
             function animate() {
-                // Motion blur için hafif şeffaf dolgu
-                ctx.fillStyle = 'rgba(5, 6, 10, 0.15)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Arka plan temizle
+                ctx.fillStyle = '#05060A';
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-                // Her particle'ı güncelle ve çiz
-                particles.forEach(particle => {
-                    particle.update();
-                    particle.draw();
+                // Telefonu çiz
+                drawPhone();
+
+                // Mevcut ve sonraki slide
+                const nextSlide = (currentSlide + 1) % outfitCategories.length;
+
+                // Slide geçişi (sağdan sola kayma)
+                const currentOffsetX = -slideProgress * phoneWidth;
+                const nextOffsetX = phoneWidth - (slideProgress * phoneWidth);
+
+                // Mevcut kartı çiz
+                drawOutfitCard(outfitCategories[currentSlide], currentOffsetX);
+
+                // Sonraki kartı çiz
+                drawOutfitCard(outfitCategories[nextSlide], nextOffsetX);
+
+                // Slide ilerletme
+                slideProgress += slideSpeed;
+                if (slideProgress >= 1) {
+                    slideProgress = 0;
+                    currentSlide = nextSlide;
+                }
+
+                // Progress indicator (alttta noktalar)
+                const dotSize = 6;
+                const dotSpacing = 16;
+                const totalWidth = (outfitCategories.length * dotSpacing) - dotSpacing;
+                const startX = phoneX + (phoneWidth - totalWidth) / 2;
+                const dotY = phoneY + phoneHeight + 20;
+
+                outfitCategories.forEach((_, index) => {
+                    ctx.fillStyle = index === currentSlide ? '#E5E7EB' : 'rgba(229, 231, 235, 0.3)';
+                    ctx.fillRect(startX + (index * dotSpacing), dotY, dotSize, dotSize);
                 });
 
                 animationFrameId = requestAnimationFrame(animate);
             }
-
-            // Mouse event listeners
-            canvas.addEventListener('mouseenter', () => {
-                mouse.active = true;
-            });
-
-            canvas.addEventListener('mouseleave', () => {
-                mouse.active = false;
-            });
-
-            canvas.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                mouse.x = e.clientX - rect.left;
-                mouse.y = e.clientY - rect.top;
-            });
-
-            // Touch event listeners (mobile)
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                mouse.active = true;
-                const rect = canvas.getBoundingClientRect();
-                const touch = e.touches[0];
-                mouse.x = touch.clientX - rect.left;
-                mouse.y = touch.clientY - rect.top;
-            });
-
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const rect = canvas.getBoundingClientRect();
-                const touch = e.touches[0];
-                mouse.x = touch.clientX - rect.left;
-                mouse.y = touch.clientY - rect.top;
-            });
-
-            canvas.addEventListener('touchend', () => {
-                mouse.active = false;
-            });
 
             // Resize event
             let resizeTimeout;

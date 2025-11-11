@@ -478,7 +478,7 @@
     <!-- JAVASCRIPT -->
     <script>
         // ==========================================
-        // MOBILE APP MOCKUP ANIMATION
+        // PIXEL PARTICLE SILHOUETTE ANIMATION
         // ==========================================
 
         (function() {
@@ -486,36 +486,130 @@
             if (!canvas) return;
 
             const ctx = canvas.getContext('2d');
+            let particles = [];
             let animationFrameId = null;
-            let currentSlide = 0;
-            let slideProgress = 0;
-            const slideSpeed = 0.008;
-
-            // Kıyafet kategorileri
-            const outfitCategories = [
-                { name: 'UST', items: ['GOMLEK', 'TSHIRT', 'SWEATSHIRT'] },
-                { name: 'ALT', items: ['JEAN', 'PANTOLON', 'SORT'] },
-                { name: 'AYAKKABI', items: ['SNEAKER', 'BOT', 'AYAKKABI'] },
-                { name: 'AKSESUAR', items: ['SAAT', 'GOZLUK', 'SAPKA'] }
-            ];
-
             let canvasWidth = 0;
             let canvasHeight = 0;
-            let phoneWidth = 0;
-            let phoneHeight = 0;
-            let phoneX = 0;
-            let phoneY = 0;
 
-            // 3D efekt için mouse tracking (subtle)
+            // Mouse state
             const mouse = {
-                x: 0.5,
-                y: 0.5,
+                x: 0,
+                y: 0,
+                radius: 120,
+                strength: 0.5,
                 active: false
             };
 
-            let floatOffset = 0;
+            // Particle sınıfı
+            class Particle {
+                constructor(x, y) {
+                    this.ox = x; // Original x
+                    this.oy = y; // Original y
+                    this.x = x;
+                    this.y = y;
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.size = 2 + Math.random() * 1; // 2 - 3
+                    this.alpha = 0.6 + Math.random() * 0.3; // 0.6 - 0.9
+                }
 
-            // Canvas boyutunu ayarlama
+                update() {
+                    // Spring force - orijinal konuma çekme
+                    const springForce = 0.02;
+                    this.vx += (this.ox - this.x) * springForce;
+                    this.vy += (this.oy - this.y) * springForce;
+
+                    // Mouse etkileşimi
+                    if (mouse.active) {
+                        const dx = this.x - mouse.x;
+                        const dy = this.y - mouse.y;
+                        const distSq = dx * dx + dy * dy;
+                        const radiusSq = mouse.radius * mouse.radius;
+
+                        if (distSq < radiusSq && distSq > 0) {
+                            const dist = Math.sqrt(distSq);
+                            const force = (1 - dist / mouse.radius) * mouse.strength;
+                            const nx = dx / dist;
+                            const ny = dy / dist;
+
+                            this.vx += nx * force * 5;
+                            this.vy += ny * force * 5;
+                        }
+                    }
+
+                    // Sürtünme
+                    this.vx *= 0.88;
+                    this.vy *= 0.88;
+
+                    // Pozisyon güncelleme
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(229, 231, 235, ${this.alpha})`;
+                    ctx.fill();
+                }
+            }
+
+            // Telefon silüeti içinde mi kontrol et
+            function isInsidePhoneSilhouette(x, y, centerX, centerY, phoneW, phoneH) {
+                const cornerRadius = 40;
+
+                // Telefon sınırları
+                const left = centerX - phoneW / 2;
+                const right = centerX + phoneW / 2;
+                const top = centerY - phoneH / 2;
+                const bottom = centerY + phoneH / 2;
+
+                // Basit dikdörtgen check
+                if (x < left || x > right || y < top || y > bottom) {
+                    return false;
+                }
+
+                // Köşe radius kontrolü (4 köşe)
+                // Sol üst
+                if (x < left + cornerRadius && y < top + cornerRadius) {
+                    const dx = x - (left + cornerRadius);
+                    const dy = y - (top + cornerRadius);
+                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
+                }
+                // Sağ üst
+                if (x > right - cornerRadius && y < top + cornerRadius) {
+                    const dx = x - (right - cornerRadius);
+                    const dy = y - (top + cornerRadius);
+                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
+                }
+                // Sol alt
+                if (x < left + cornerRadius && y > bottom - cornerRadius) {
+                    const dx = x - (left + cornerRadius);
+                    const dy = y - (bottom - cornerRadius);
+                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
+                }
+                // Sağ alt
+                if (x > right - cornerRadius && y > bottom - cornerRadius) {
+                    const dx = x - (right - cornerRadius);
+                    const dy = y - (bottom - cornerRadius);
+                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
+                }
+
+                // Notch bölgesini çıkar (üst orta)
+                const notchWidth = phoneW * 0.3;
+                const notchHeight = 20;
+                const notchLeft = centerX - notchWidth / 2;
+                const notchRight = centerX + notchWidth / 2;
+                const notchBottom = top + notchHeight;
+
+                if (x >= notchLeft && x <= notchRight && y >= top && y <= notchBottom) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Canvas boyutunu ayarlama ve particle silüet oluşturma
             function resizeCanvas() {
                 const rect = canvas.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
@@ -528,252 +622,90 @@
                 canvasWidth = rect.width;
                 canvasHeight = rect.height;
 
-                // Telefon boyutları (canvas'ın %60'ı)
-                phoneHeight = canvasHeight * 0.7;
-                phoneWidth = phoneHeight * 0.5; // 9:18 aspect ratio
-                phoneX = (canvasWidth - phoneWidth) / 2;
-                phoneY = (canvasHeight - phoneHeight) / 2;
+                // Telefon boyutları
+                const phoneHeight = canvasHeight * 0.65;
+                const phoneWidth = phoneHeight * 0.48; // Telefon aspect ratio
+                const centerX = canvasWidth / 2;
+                const centerY = canvasHeight / 2;
+
+                // Particle silüeti oluştur
+                createPhoneSilhouette(centerX, centerY, phoneWidth, phoneHeight);
             }
 
-            // Mobil telefon çerçevesi çiz
-            function drawPhone() {
-                const cornerRadius = 8;
-                const borderWidth = 3;
+            // Telefon silüeti şeklinde particle oluştur
+            function createPhoneSilhouette(centerX, centerY, phoneW, phoneH) {
+                particles = [];
+                const spacing = 8; // Piksel aralığı
+                const jitter = 2; // Rastgelelik için
 
-                // Subtle 3D offset (mouse-based)
-                const offsetX = (mouse.x - 0.5) * 6;
-                const offsetY = (mouse.y - 0.5) * 6 + floatOffset;
+                // Grid tarama
+                const left = centerX - phoneW / 2;
+                const top = centerY - phoneH / 2;
 
-                // Gölge (3D depth için)
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-                ctx.shadowBlur = 20;
-                ctx.shadowOffsetX = -offsetX * 0.5;
-                ctx.shadowOffsetY = 8 + (-offsetY * 0.3);
+                for (let x = left; x < left + phoneW; x += spacing) {
+                    for (let y = top; y < top + phoneH; y += spacing) {
+                        // Jitter ekle
+                        const px = x + (Math.random() - 0.5) * jitter;
+                        const py = y + (Math.random() - 0.5) * jitter;
 
-                // Telefon gövdesi
-                ctx.fillStyle = '#0F1117';
-                ctx.strokeStyle = '#E5E7EB';
-                ctx.lineWidth = borderWidth;
-
-                const pX = phoneX + offsetX;
-                const pY = phoneY + offsetY;
-
-                // Rounded rectangle için path
-                ctx.beginPath();
-                ctx.moveTo(pX + cornerRadius, pY);
-                ctx.lineTo(pX + phoneWidth - cornerRadius, pY);
-                ctx.arcTo(pX + phoneWidth, pY, pX + phoneWidth, pY + cornerRadius, cornerRadius);
-                ctx.lineTo(pX + phoneWidth, pY + phoneHeight - cornerRadius);
-                ctx.arcTo(pX + phoneWidth, pY + phoneHeight, pX + phoneWidth - cornerRadius, pY + phoneHeight, cornerRadius);
-                ctx.lineTo(pX + cornerRadius, pY + phoneHeight);
-                ctx.arcTo(pX, pY + phoneHeight, pX, pY + phoneHeight - cornerRadius, cornerRadius);
-                ctx.lineTo(pX, pY + cornerRadius);
-                ctx.arcTo(pX, pY, pX + cornerRadius, pY, cornerRadius);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-
-                // Gölgeyi sıfırla
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-
-                // Notch (üst çentik)
-                const notchWidth = phoneWidth * 0.3;
-                const notchHeight = 6;
-                const notchX = pX + (phoneWidth - notchWidth) / 2;
-                const notchY = pY + 8;
-
-                ctx.fillStyle = '#05060A';
-                ctx.fillRect(notchX, notchY, notchWidth, notchHeight);
-
-                // Home indicator (alt çizgi)
-                const indicatorWidth = phoneWidth * 0.35;
-                const indicatorHeight = 4;
-                const indicatorX = pX + (phoneWidth - indicatorWidth) / 2;
-                const indicatorY = pY + phoneHeight - 12;
-
-                ctx.fillStyle = '#4B5563';
-                ctx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-            }
-
-            // Kıyafet kartı çiz
-            function drawOutfitCard(category, offsetX) {
-                const cardPadding = 20;
-
-                // 3D offset (telefon ile aynı)
-                const offset3DX = (mouse.x - 0.5) * 6;
-                const offset3DY = (mouse.y - 0.5) * 6 + floatOffset;
-
-                const cardX = phoneX + cardPadding + offsetX + offset3DX;
-                const cardY = phoneY + 40 + offset3DY;
-                const cardWidth = phoneWidth - (cardPadding * 2);
-                const cardHeight = phoneHeight - 80;
-
-                // Kart arka planı
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-                ctx.strokeStyle = 'rgba(229, 231, 235, 0.2)';
-                ctx.lineWidth = 2;
-                ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
-                ctx.strokeRect(cardX, cardY, cardWidth, cardHeight);
-
-                // Kategori başlığı
-                ctx.fillStyle = '#E5E7EB';
-                ctx.font = 'bold 16px "Pixelify Sans", monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(category.name, cardX + cardWidth / 2, cardY + 40);
-
-                // Kıyafet siluetleri (3 adet)
-                const itemHeight = (cardHeight - 120) / 3;
-                category.items.forEach((item, index) => {
-                    const itemY = cardY + 70 + (index * itemHeight);
-                    const itemX = cardX + cardWidth / 2;
-
-                    // Her kıyafete depth layering (paralaks)
-                    const depthOffset = (index + 1) * 2;
-                    const itemOffsetX = (mouse.x - 0.5) * depthOffset;
-                    const itemOffsetY = (mouse.y - 0.5) * depthOffset;
-
-                    // Kıyafet kutusu
-                    const boxSize = Math.min(cardWidth * 0.6, itemHeight * 0.6);
-                    ctx.fillStyle = 'rgba(229, 231, 235, 0.1)';
-                    ctx.fillRect(itemX - boxSize/2 + itemOffsetX, itemY + itemOffsetY, boxSize, boxSize);
-
-                    // Kıyafet ikonu gölgesi (3D için)
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                    ctx.shadowBlur = 8;
-                    ctx.shadowOffsetX = 2;
-                    ctx.shadowOffsetY = 3;
-
-                    // Kıyafet ikonu (basit şekil)
-                    ctx.fillStyle = '#9CA3AF';
-
-                    const iX = itemX + itemOffsetX;
-                    const iY = itemY + itemOffsetY;
-
-                    if (category.name === 'UST') {
-                        // T-shirt şekli
-                        ctx.fillRect(iX - boxSize*0.3, iY + boxSize*0.2, boxSize*0.6, boxSize*0.5);
-                        ctx.fillRect(iX - boxSize*0.4, iY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
-                        ctx.fillRect(iX + boxSize*0.2, iY + boxSize*0.15, boxSize*0.2, boxSize*0.3);
-                    } else if (category.name === 'ALT') {
-                        // Pantolon şekli
-                        ctx.fillRect(iX - boxSize*0.3, iY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
-                        ctx.fillRect(iX + boxSize*0.05, iY + boxSize*0.2, boxSize*0.25, boxSize*0.6);
-                    } else if (category.name === 'AYAKKABI') {
-                        // Ayakkabı şekli
-                        ctx.fillRect(iX - boxSize*0.3, iY + boxSize*0.5, boxSize*0.6, boxSize*0.25);
-                        ctx.fillRect(iX - boxSize*0.2, iY + boxSize*0.35, boxSize*0.4, boxSize*0.2);
-                    } else if (category.name === 'AKSESUAR') {
-                        // Aksesuar (daire)
-                        ctx.beginPath();
-                        ctx.arc(iX, iY + boxSize*0.5, boxSize*0.25, 0, Math.PI * 2);
-                        ctx.fill();
+                        // Telefon silüeti içinde mi?
+                        if (isInsidePhoneSilhouette(px, py, centerX, centerY, phoneW, phoneH)) {
+                            particles.push(new Particle(px, py));
+                        }
                     }
-
-                    // Gölgeyi sıfırla
-                    ctx.shadowColor = 'transparent';
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 0;
-
-                    // İsim
-                    ctx.fillStyle = '#B8BBC3';
-                    ctx.font = '12px "Pixelify Sans", monospace';
-                    ctx.fillText(item, iX, iY + boxSize + 20);
-                });
+                }
             }
 
-            // Ana animasyon döngüsü
+            // Animasyon döngüsü
             function animate() {
-                // Float efekti (yukarı aşağı yavaş hareket)
-                floatOffset = Math.sin(Date.now() * 0.001) * 3;
-
-                // Arka plan temizle
-                ctx.fillStyle = '#05060A';
+                // Motion blur için hafif şeffaf dolgu
+                ctx.fillStyle = 'rgba(5, 6, 10, 0.2)';
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-                // Telefonu çiz
-                drawPhone();
-
-                // Mevcut ve sonraki slide
-                const nextSlide = (currentSlide + 1) % outfitCategories.length;
-
-                // Slide geçişi (sağdan sola kayma)
-                const currentOffsetX = -slideProgress * phoneWidth;
-                const nextOffsetX = phoneWidth - (slideProgress * phoneWidth);
-
-                // Mevcut kartı çiz
-                drawOutfitCard(outfitCategories[currentSlide], currentOffsetX);
-
-                // Sonraki kartı çiz
-                drawOutfitCard(outfitCategories[nextSlide], nextOffsetX);
-
-                // Slide ilerletme
-                slideProgress += slideSpeed;
-                if (slideProgress >= 1) {
-                    slideProgress = 0;
-                    currentSlide = nextSlide;
-                }
-
-                // Progress indicator (alttta noktalar) - 3D offset ile
-                const offset3DX = (mouse.x - 0.5) * 6;
-                const offset3DY = (mouse.y - 0.5) * 6 + floatOffset;
-
-                const dotSize = 6;
-                const dotSpacing = 16;
-                const totalWidth = (outfitCategories.length * dotSpacing) - dotSpacing;
-                const startX = phoneX + (phoneWidth - totalWidth) / 2 + offset3DX;
-                const dotY = phoneY + phoneHeight + 20 + offset3DY;
-
-                outfitCategories.forEach((_, index) => {
-                    ctx.fillStyle = index === currentSlide ? '#E5E7EB' : 'rgba(229, 231, 235, 0.3)';
-                    ctx.fillRect(startX + (index * dotSpacing), dotY, dotSize, dotSize);
+                // Her particle'ı güncelle ve çiz
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
                 });
 
                 animationFrameId = requestAnimationFrame(animate);
             }
 
-            // Mouse event listeners (subtle 3D için)
+            // Mouse event listeners
             canvas.addEventListener('mouseenter', () => {
                 mouse.active = true;
             });
 
             canvas.addEventListener('mouseleave', () => {
                 mouse.active = false;
-                mouse.x = 0.5;
-                mouse.y = 0.5;
             });
 
             canvas.addEventListener('mousemove', (e) => {
                 const rect = canvas.getBoundingClientRect();
-                mouse.x = (e.clientX - rect.left) / rect.width;
-                mouse.y = (e.clientY - rect.top) / rect.height;
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
             });
 
-            // Touch support
+            // Touch event listeners (mobile)
             canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 mouse.active = true;
                 const rect = canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                mouse.x = (touch.clientX - rect.left) / rect.width;
-                mouse.y = (touch.clientY - rect.top) / rect.height;
+                mouse.x = touch.clientX - rect.left;
+                mouse.y = touch.clientY - rect.top;
             });
 
             canvas.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 const rect = canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                mouse.x = (touch.clientX - rect.left) / rect.width;
-                mouse.y = (touch.clientY - rect.top) / rect.height;
+                mouse.x = touch.clientX - rect.left;
+                mouse.y = touch.clientY - rect.top;
             });
 
             canvas.addEventListener('touchend', () => {
                 mouse.active = false;
-                mouse.x = 0.5;
-                mouse.y = 0.5;
             });
 
             // Resize event

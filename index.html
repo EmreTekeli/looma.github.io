@@ -502,9 +502,9 @@
                 active: false
             };
 
-            // Particle sınıfı (optimize edilmiş)
+            // Particle sınıfı (optimize edilmiş, monochrome)
             class Particle {
-                constructor(x, y) {
+                constructor(x, y, brightness) {
                     this.ox = x; // Original x
                     this.oy = y; // Original y
                     this.x = x;
@@ -512,7 +512,9 @@
                     this.vx = 0;
                     this.vy = 0;
                     this.size = 1.5; // Sabit boyut (hesaplama yok)
-                    this.color = `hsla(${200 + Math.random() * 40}, 65%, 60%, 0.8)`; // Pre-calculated color
+                    // Siyah-beyaz-gri tonları (brightness'a göre)
+                    const gray = Math.round(brightness);
+                    this.color = `rgba(${gray}, ${gray}, ${gray}, 0.9)`;
                 }
 
                 update() {
@@ -619,26 +621,28 @@
                 const imageData = tempCtx.getImageData(0, 0, imgWidth, imgHeight);
                 const data = imageData.data;
 
-                // Piksel spacing (4px aralık = optimize + detaylı)
-                const pixelSize = 4; // 4px = optimal balans (hızlı + net görünüm)
-
-                // Scan sayısını say
-                let selectedPixels = 0;
+                // Piksel spacing (3px aralık = daha detaylı silüet)
+                const pixelSize = 3; // 3px = iyi silüet detayı
 
                 // Her pixel'i kontrol et
                 for (let y = 0; y < imgHeight; y += pixelSize) {
                     for (let x = 0; x < imgWidth; x += pixelSize) {
                         const index = (y * imgWidth + x) * 4;
-                        const a = data[index + 3]; // Sadece alpha channel kontrol et
+                        const r = data[index];
+                        const g = data[index + 1];
+                        const b = data[index + 2];
+                        const a = data[index + 3]; // Alpha channel
 
-                        // Şeffaf olmayan pixel'leri seç
-                        if (a > 100) {
-                            selectedPixels++;
+                        // Şeffaf olmayan pixel'leri seç (daha esnekli)
+                        if (a > 80) {
+                            // Brightness hesapla (luminance formula)
+                            const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+
                             // Minimal jitter
                             const px = offsetX + x * scale + (Math.random() - 0.5) * 1;
                             const py = offsetY + y * scale + (Math.random() - 0.5) * 1;
 
-                            particles.push(new Particle(px, py));
+                            particles.push(new Particle(px, py, brightness));
                         }
                     }
                 }

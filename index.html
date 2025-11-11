@@ -493,16 +493,16 @@
             let imageLoaded = false;
             let sourceImage = null;
 
-            // Mouse state
+            // Mouse state - çok az dağılma
             const mouse = {
                 x: 0,
                 y: 0,
-                radius: 150,
-                strength: 0.7,
+                radius: 80, // Etki alanı küçültüldü
+                strength: 0.3, // Kuvvet çok azaldı
                 active: false
             };
 
-            // Particle sınıfı
+            // Particle sınıfı (optimize edilmiş)
             class Particle {
                 constructor(x, y) {
                     this.ox = x; // Original x
@@ -511,38 +511,36 @@
                     this.y = y;
                     this.vx = 0;
                     this.vy = 0;
-                    this.size = 1.2 + Math.random() * 0.6; // 1.2 - 1.8 (daha küçük, detaylı)
-                    this.alpha = 0.5 + Math.random() * 0.45; // 0.5 - 0.95 (daha çeşitli)
-                    this.hue = Math.random() * 60; // 0-60 derece (mavi-yeşil tonları)
+                    this.size = 1.5; // Sabit boyut (hesaplama yok)
+                    this.color = `hsla(${200 + Math.random() * 40}, 65%, 60%, 0.8)`; // Pre-calculated color
                 }
 
                 update() {
-                    // Spring force - orijinal konuma çekme
-                    const springForce = 0.02;
-                    this.vx += (this.ox - this.x) * springForce;
-                    this.vy += (this.oy - this.y) * springForce;
+                    // Spring force - orijinal konuma çekme (azaltıldı)
+                    const dx = this.ox - this.x;
+                    const dy = this.oy - this.y;
 
-                    // Mouse etkileşimi
+                    this.vx += dx * 0.01; // springForce azaldı
+                    this.vy += dy * 0.01;
+
+                    // Mouse etkileşimi (çok zayıf)
                     if (mouse.active) {
-                        const dx = this.x - mouse.x;
-                        const dy = this.y - mouse.y;
-                        const distSq = dx * dx + dy * dy;
+                        const mdx = this.x - mouse.x;
+                        const mdy = this.y - mouse.y;
+                        const distSq = mdx * mdx + mdy * mdy;
                         const radiusSq = mouse.radius * mouse.radius;
 
                         if (distSq < radiusSq && distSq > 0) {
                             const dist = Math.sqrt(distSq);
-                            const force = (1 - dist / mouse.radius) * mouse.strength;
-                            const nx = dx / dist;
-                            const ny = dy / dist;
-
-                            this.vx += nx * force * 5;
-                            this.vy += ny * force * 5;
+                            const force = (1 - dist / mouse.radius) * mouse.strength * 2;
+                            this.vx += (mdx / dist) * force;
+                            this.vy += (mdy / dist) * force;
                         }
                     }
 
-                    // Sürtünme
-                    this.vx *= 0.88;
-                    this.vy *= 0.88;
+                    // Sürtünme (daha yüksek)
+                    this.vx *= 0.92;
+                    this.vy *= 0.92;
 
                     // Pozisyon güncelleme
                     this.x += this.vx;
@@ -550,18 +548,8 @@
                 }
 
                 draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    // Gradient renk efekti - mavi-yeşil-cyan tonları
-                    const hslColor = `hsla(${190 + this.hue}, 70%, 55%, ${this.alpha})`;
-                    ctx.fillStyle = hslColor;
-                    ctx.fill();
-
-                    // Parlak efekt - merkez
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * 0.4, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * 0.6})`;
-                    ctx.fill();
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
                 }
             }
 
@@ -631,57 +619,55 @@
                 const imageData = tempCtx.getImageData(0, 0, imgWidth, imgHeight);
                 const data = imageData.data;
 
-                // Piksel spacing (3px aralık = detaylı ama optimize)
-                const pixelSize = 3; // 3px = iyi balans (detaylı + hızlı)
+                // Piksel spacing (4px aralık = optimize + detaylı)
+                const pixelSize = 4; // 4px = optimal balans (hızlı + net görünüm)
 
                 // Scan sayısını say
-                let scannedPixels = 0;
                 let selectedPixels = 0;
 
                 // Her pixel'i kontrol et
                 for (let y = 0; y < imgHeight; y += pixelSize) {
                     for (let x = 0; x < imgWidth; x += pixelSize) {
-                        scannedPixels++;
                         const index = (y * imgWidth + x) * 4;
                         const a = data[index + 3]; // Sadece alpha channel kontrol et
 
-                        // Şeffaf olmayan pixel'leri seç (tüm renkleri dahil et)
-                        if (a > 50) {
+                        // Şeffaf olmayan pixel'leri seç
+                        if (a > 100) {
                             selectedPixels++;
-                            // Jitter ekle
-                            const px = offsetX + x * scale + (Math.random() - 0.5) * 3;
-                            const py = offsetY + y * scale + (Math.random() - 0.5) * 3;
+                            // Minimal jitter
+                            const px = offsetX + x * scale + (Math.random() - 0.5) * 1;
+                            const py = offsetY + y * scale + (Math.random() - 0.5) * 1;
 
                             particles.push(new Particle(px, py));
                         }
                     }
                 }
 
-                console.log(`Pixels: ${selectedPixels}/${scannedPixels} selected, Particles: ${particles.length}`);
+                console.log(`Particles created: ${particles.length}`);
             }
 
-            // Animasyon döngüsü (optimize edilmiş)
-            let lastFrameTime = 0;
-            const frameInterval = 1000 / 60; // 60 FPS cap
+            // Animasyon döngüsü (yüksek performans)
+            let frameCount = 0;
+            const updateFrequency = 2; // Her 2 frame'de bir update (30 FPS update, 60 FPS render)
 
-            function animate(currentTime) {
-                // FPS limiting - her 16.67ms'de bir frame (60 FPS)
-                if (currentTime - lastFrameTime < frameInterval) {
-                    animationFrameId = requestAnimationFrame(animate);
-                    return;
-                }
-                lastFrameTime = currentTime;
-
-                // Motion blur - çok hafif (performans için)
-                ctx.fillStyle = 'rgba(5, 6, 10, 0.15)';
+            function animate() {
+                // Canvas temizle (motion blur kaldırıldı - performans)
+                ctx.fillStyle = 'rgba(5, 6, 10, 1)';
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-                // Her particle'ı güncelle ve çiz
+                // Particle update frequency - performans için
+                if (frameCount % updateFrequency === 0) {
+                    for (let i = 0; i < particles.length; i++) {
+                        particles[i].update();
+                    }
+                }
+
+                // Draw her frame
                 for (let i = 0; i < particles.length; i++) {
-                    particles[i].update();
                     particles[i].draw();
                 }
 
+                frameCount++;
                 animationFrameId = requestAnimationFrame(animate);
             }
 

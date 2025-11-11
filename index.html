@@ -6,6 +6,11 @@
     <meta name="description" content="LOOMA - AI destekli akıllı gardırop ve moda asistanı. Kıyafetlerini dijitalleştir, AI stilist ile kombin önerileri al.">
     <title>LOOMA - AI Destekli Akıllı Gardırop</title>
 
+    <!-- Google Fonts - Pixel Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -19,11 +24,12 @@
                         'looma-gray': '#0F1117',
                         'looma-light': '#F5F5F7',
                         'looma-muted': '#B8BBC3',
-                        'looma-accent': '#8B5CF6',
-                        'looma-accent-dark': '#7C3AED',
+                        'looma-accent': '#E5E7EB',
+                        'looma-accent-dark': '#9CA3AF',
                     },
                     fontFamily: {
                         sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'SF Pro Display', 'Segoe UI', 'system-ui', 'sans-serif'],
+                        pixel: ['Pixelify Sans', 'monospace'],
                     },
                 }
             }
@@ -42,25 +48,119 @@
             }
         }
     </style>
+
+    <style>
+        /* Fade-in Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .animate-delay-400 {
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+
+        /* Glitch Effect for Headings */
+        @keyframes glitch {
+            0% {
+                text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.1);
+            }
+            25% {
+                text-shadow: -2px -2px 0px rgba(255, 255, 255, 0.1);
+            }
+            50% {
+                text-shadow: 2px -2px 0px rgba(255, 255, 255, 0.1);
+            }
+            75% {
+                text-shadow: -2px 2px 0px rgba(255, 255, 255, 0.1);
+            }
+            100% {
+                text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .pixel-heading {
+            font-family: 'Pixelify Sans', monospace;
+            image-rendering: pixelated;
+        }
+
+        .pixel-heading:hover {
+            animation: glitch 0.3s ease;
+        }
+
+        /* Scanline Effect */
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        .scanline-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: scanline 3s linear infinite;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
 </head>
 <body class="bg-looma-dark text-looma-light antialiased">
 
     <!-- NAVBAR -->
-    <nav class="w-full px-6 md:px-12 lg:px-16 py-6 md:py-8">
+    <nav class="w-full px-6 md:px-12 lg:px-16 py-6 md:py-8 animate-fade-in">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-looma-accent to-looma-accent-dark flex items-center justify-center">
-                    <div class="w-4 h-4 md:w-5 md:h-5 border-2 border-white rounded-sm"></div>
+                <div class="w-8 h-8 md:w-10 md:h-10 rounded-sm bg-white flex items-center justify-center transition-transform duration-300 hover:scale-110">
+                    <div class="w-4 h-4 md:w-5 md:h-5 border-2 border-looma-dark rounded-[2px]"></div>
                 </div>
-                <span class="text-sm md:text-base font-semibold tracking-[0.2em] uppercase">LOOMA</span>
+                <span class="text-sm md:text-base font-bold tracking-[0.3em] uppercase pixel-heading">LOOMA</span>
             </div>
 
             <!-- Nav Links - Desktop -->
-            <div class="hidden md:flex items-center gap-8 text-sm text-looma-muted">
-                <a href="#features" class="hover:text-looma-light transition-colors duration-200">Özellikler</a>
-                <a href="#how" class="hover:text-looma-light transition-colors duration-200">Nasıl Çalışır</a>
-                <a href="#beta" class="hover:text-looma-light transition-colors duration-200">Erken Erişim</a>
+            <div class="hidden md:flex items-center gap-8 text-sm text-looma-muted font-pixel">
+                <a href="#features" class="hover:text-looma-light transition-colors duration-200 hover:underline">Özellikler</a>
+                <a href="#how" class="hover:text-looma-light transition-colors duration-200 hover:underline">Nasıl Çalışır</a>
+                <a href="#beta" class="hover:text-looma-light transition-colors duration-200 hover:underline">Erken Erişim</a>
             </div>
         </div>
     </nav>
@@ -73,47 +173,47 @@
                 <!-- Sol Kolon - Metin -->
                 <div class="space-y-6 md:space-y-8">
                     <!-- Eyebrow -->
-                    <div class="inline-block">
-                        <span class="text-xs md:text-sm uppercase tracking-[0.15em] text-looma-accent font-medium">
-                            AI Destekli Akıllı Gardırop
+                    <div class="inline-block animate-fade-in">
+                        <span class="text-xs md:text-sm uppercase tracking-[0.15em] text-looma-accent-dark font-medium pixel-heading">
+                            AI DESTEKLI AKILLI GARDIROP
                         </span>
                     </div>
 
                     <!-- Ana Başlık -->
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-balance">
-                        Ne giyeceğini<br>düşünme.<br>
-                        <span class="text-looma-muted">LOOMA senin yerine<br>karar versin.</span>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-balance pixel-heading animate-fade-in animate-delay-100">
+                        NE GIYECEGINI<br>DUSUNME.<br>
+                        <span class="text-looma-muted">LOOMA SENIN YERINE<br>KARAR VERSIN.</span>
                     </h1>
 
                     <!-- Alt Metin -->
-                    <p class="text-base md:text-lg text-looma-muted leading-relaxed max-w-xl">
+                    <p class="text-base md:text-lg text-looma-muted leading-relaxed max-w-xl animate-fade-in animate-delay-200">
                         Kıyafetlerini dijitalleştir, stilini LOOMA'ya anlat. Google Gemini destekli AI stilist, hava durumu, tarzın ve gardırobunu birlikte analiz ederek sana özel kombinler önerir. Outfit'lerini paylaşabilir, beğendiklerini tek tıkla satın alabilirsin.
                     </p>
 
                     <!-- Butonlar -->
-                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                        <a href="#beta" class="inline-flex items-center justify-center px-8 py-4 bg-looma-light text-looma-dark font-semibold rounded-xl hover:bg-white transition-all duration-200 hover:scale-105">
-                            Erken erişime katıl
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4 animate-fade-in animate-delay-300">
+                        <a href="#beta" class="inline-flex items-center justify-center px-8 py-4 bg-looma-light text-looma-dark font-bold rounded-sm hover:bg-white transition-all duration-200 hover:scale-105 pixel-heading text-sm">
+                            ERKEN ERISIME KATIL
                         </a>
-                        <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-looma-light font-semibold rounded-xl hover:border-white/40 hover:bg-white/5 transition-all duration-200">
-                            İş fizibilite raporunu gör (PDF)
+                        <a href="#" class="inline-flex items-center justify-center px-8 py-4 border-2 border-white/20 text-looma-light font-semibold rounded-sm hover:border-white/60 hover:bg-white/5 transition-all duration-200 pixel-heading text-sm">
+                            FIZIBILITE RAPORU
                         </a>
                     </div>
 
                     <!-- Tagline -->
-                    <div class="pt-4">
-                        <span class="text-xs uppercase tracking-[0.2em] text-looma-muted/60">
-                            Wardrobe · AI · Sosyal · Shopping
+                    <div class="pt-4 animate-fade-in animate-delay-400">
+                        <span class="text-xs uppercase tracking-[0.2em] text-looma-muted/60 pixel-heading">
+                            WARDROBE · AI · SOSYAL · SHOPPING
                         </span>
                     </div>
                 </div>
 
                 <!-- Sağ Kolon - Canvas Animasyon -->
-                <div class="relative w-full">
-                    <div class="relative aspect-square max-h-[250px] md:max-h-[450px] lg:max-h-[500px] w-full rounded-3xl glass-effect overflow-hidden">
+                <div class="relative w-full animate-fade-in animate-delay-200">
+                    <div class="scanline-container relative aspect-square max-h-[250px] md:max-h-[450px] lg:max-h-[500px] w-full rounded-sm glass-effect overflow-hidden border-2 border-white/10">
                         <!-- Live Preview Badge -->
-                        <div class="absolute top-4 left-4 z-10 px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-lg">
-                            <span class="text-xs font-medium tracking-wider uppercase text-looma-muted">Live Preview</span>
+                        <div class="absolute top-4 left-4 z-10 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-sm border border-white/20">
+                            <span class="text-xs font-bold tracking-wider uppercase text-looma-accent pixel-heading">LIVE</span>
                         </div>
 
                         <!-- Canvas -->
@@ -131,7 +231,7 @@
 
             <!-- Başlık -->
             <div class="max-w-3xl mb-12 md:mb-16">
-                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">LOOMA ne yapar?</h2>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 pixel-heading">LOOMA NE YAPAR?</h2>
                 <p class="text-lg md:text-xl text-looma-muted leading-relaxed">
                     LOOMA; gardırobunu dijitalleştirmeni, AI stilistinle doğal dilde konuşmanı, outfit'lerini paylaşmanı ve gardırobundaki boşluklara göre kişiselleştirilmiş alışveriş önerileri almanı sağlayan akıllı moda asistanıdır.
                 </p>
@@ -141,53 +241,53 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                 <!-- Kart 1 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group">
-                    <div class="w-12 h-12 rounded-xl bg-looma-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-looma-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-effect rounded-sm p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group border-2 border-white/5 hover:border-white/20">
+                    <div class="w-12 h-12 rounded-sm bg-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-white/20">
+                        <svg class="w-6 h-6 text-looma-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Akıllı dijital gardırop</h3>
-                    <p class="text-looma-muted leading-relaxed">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">DIJITAL GARDIROP</h3>
+                    <p class="text-looma-muted leading-relaxed text-sm">
                         Kıyafetlerini fotoğraflayıp ekle, LOOMA tür, renk, sezon ve marka gibi etiketleri otomatik çıkarır.
                     </p>
                 </div>
 
                 <!-- Kart 2 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group">
-                    <div class="w-12 h-12 rounded-xl bg-looma-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-looma-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-effect rounded-sm p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group border-2 border-white/5 hover:border-white/20">
+                    <div class="w-12 h-12 rounded-sm bg-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-white/20">
+                        <svg class="w-6 h-6 text-looma-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">AI fashion stilist</h3>
-                    <p class="text-looma-muted leading-relaxed">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">AI STILIST</h3>
+                    <p class="text-looma-muted leading-relaxed text-sm">
                         Google Gemini tabanlı stilist, stil anketin, gardırobun ve hava durumuna göre sana özel kombin önerir.
                     </p>
                 </div>
 
                 <!-- Kart 3 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group">
-                    <div class="w-12 h-12 rounded-xl bg-looma-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-looma-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-effect rounded-sm p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group border-2 border-white/5 hover:border-white/20">
+                    <div class="w-12 h-12 rounded-sm bg-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-white/20">
+                        <svg class="w-6 h-6 text-looma-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Sosyal moda ağı</h3>
-                    <p class="text-looma-muted leading-relaxed">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">SOSYAL AG</h3>
+                    <p class="text-looma-muted leading-relaxed text-sm">
                         Outfit'lerini paylaş, arkadaşlarını takip et, ilham al. İstersen sadece arkadaşlarınla, istersen herkesle paylaş.
                     </p>
                 </div>
 
                 <!-- Kart 4 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group">
-                    <div class="w-12 h-12 rounded-xl bg-looma-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-looma-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-effect rounded-sm p-6 md:p-8 hover:bg-white/5 transition-all duration-300 group border-2 border-white/5 hover:border-white/20">
+                    <div class="w-12 h-12 rounded-sm bg-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-white/20">
+                        <svg class="w-6 h-6 text-looma-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Akıllı alışveriş</h3>
-                    <p class="text-looma-muted leading-relaxed">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">AKILLI ALISVERIS</h3>
+                    <p class="text-looma-muted leading-relaxed text-sm">
                         Gardırobundaki eksik parçaları tespit edip Trendyol, Hepsiburada ve Amazon'dan kişiselleştirilmiş ürün önerileri gösterir.
                     </p>
                 </div>
@@ -202,7 +302,7 @@
 
             <!-- Başlık -->
             <div class="text-center mb-12 md:mb-20">
-                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Nasıl çalışıyor?</h2>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 pixel-heading">NASIL CALISIYOR?</h2>
             </div>
 
             <!-- Adımlar -->
@@ -211,40 +311,40 @@
                 <!-- Adım 1 -->
                 <div class="relative">
                     <div class="text-center md:text-left space-y-4">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-looma-accent/20 mb-4">
-                            <span class="text-2xl font-bold text-looma-accent">1</span>
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-sm bg-white/10 mb-4 border-2 border-white/20">
+                            <span class="text-2xl font-bold text-looma-accent pixel-heading">1</span>
                         </div>
-                        <h3 class="text-2xl font-semibold">Gardırobunu ekle</h3>
+                        <h3 class="text-2xl font-bold pixel-heading">GARDIROP EKLE</h3>
                         <p class="text-looma-muted leading-relaxed">
                             Kıyafetlerinin fotoğrafını çek veya galeriden yükle; LOOMA parçaları türüne, rengine ve sezona göre akıllıca sınıflandırır.
                         </p>
                     </div>
                     <!-- Connector -->
-                    <div class="hidden md:block absolute top-8 left-full w-12 h-0.5 bg-gradient-to-r from-looma-accent/40 to-transparent -ml-6"></div>
+                    <div class="hidden md:block absolute top-8 left-full w-12 h-0.5 bg-gradient-to-r from-looma-accent-dark/60 to-transparent -ml-6"></div>
                 </div>
 
                 <!-- Adım 2 -->
                 <div class="relative">
                     <div class="text-center md:text-left space-y-4">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-looma-accent/20 mb-4">
-                            <span class="text-2xl font-bold text-looma-accent">2</span>
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-sm bg-white/10 mb-4 border-2 border-white/20">
+                            <span class="text-2xl font-bold text-looma-accent pixel-heading">2</span>
                         </div>
-                        <h3 class="text-2xl font-semibold">AI stilistinle konuş</h3>
+                        <h3 class="text-2xl font-bold pixel-heading">AI ILE KONUS</h3>
                         <p class="text-looma-muted leading-relaxed">
                             'Ofiste sunum var', 'hava soğuk' ya da 'akşam yemeği var' de; LOOMA stilini, gardırobunu ve ortamı birlikte değerlendirir.
                         </p>
                     </div>
                     <!-- Connector -->
-                    <div class="hidden md:block absolute top-8 left-full w-12 h-0.5 bg-gradient-to-r from-looma-accent/40 to-transparent -ml-6"></div>
+                    <div class="hidden md:block absolute top-8 left-full w-12 h-0.5 bg-gradient-to-r from-looma-accent-dark/60 to-transparent -ml-6"></div>
                 </div>
 
                 <!-- Adım 3 -->
                 <div class="relative">
                     <div class="text-center md:text-left space-y-4">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-looma-accent/20 mb-4">
-                            <span class="text-2xl font-bold text-looma-accent">3</span>
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-sm bg-white/10 mb-4 border-2 border-white/20">
+                            <span class="text-2xl font-bold text-looma-accent pixel-heading">3</span>
                         </div>
-                        <h3 class="text-2xl font-semibold">Kombinleri dene ve keşfet</h3>
+                        <h3 class="text-2xl font-bold pixel-heading">DENE & KESFET</h3>
                         <p class="text-looma-muted leading-relaxed">
                             Önerilen kombinleri sanal olarak dene, outfit'ini paylaş, beğendiğin ürünleri partner mağazalardan satın al.
                         </p>
@@ -258,12 +358,12 @@
     <!-- BETA / EARLY ACCESS SECTION -->
     <section id="beta" class="w-full px-6 md:px-12 lg:px-16 py-16 md:py-24 lg:py-32">
         <div class="max-w-5xl mx-auto">
-            <div class="glass-effect rounded-3xl p-8 md:p-12 lg:p-16">
+            <div class="glass-effect rounded-sm p-8 md:p-12 lg:p-16 border-2 border-white/10">
                 <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
 
                     <!-- Sol - Metin -->
                     <div class="space-y-4 md:space-y-6">
-                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold">Erken erişime katıl</h2>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold pixel-heading">ERKEN ERISIME KATIL</h2>
                         <p class="text-lg text-looma-muted leading-relaxed">
                             LOOMA şu an kapalı beta aşamasında. E-posta adresini bırak, daveti ilk alanlardan ol ve ürün gelişimine doğrudan katkı sağla.
                         </p>
@@ -278,16 +378,16 @@
                                     id="email-input"
                                     placeholder="E-posta adresin"
                                     required
-                                    class="w-full px-6 py-4 bg-looma-dark/60 border border-white/10 rounded-xl text-looma-light placeholder-looma-muted/50 focus:outline-none focus:border-looma-accent focus:ring-2 focus:ring-looma-accent/20 transition-all duration-200"
+                                    class="w-full px-6 py-4 bg-looma-dark/60 border-2 border-white/10 rounded-sm text-looma-light placeholder-looma-muted/50 focus:outline-none focus:border-looma-accent focus:ring-0 transition-all duration-200 hover:border-white/20 pixel-heading text-sm"
                                 />
                             </div>
                             <button
                                 type="submit"
-                                class="w-full px-8 py-4 bg-looma-accent hover:bg-looma-accent-dark text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105"
+                                class="w-full px-8 py-4 bg-looma-light text-looma-dark font-bold rounded-sm transition-all duration-200 hover:scale-105 hover:bg-white pixel-heading"
                             >
-                                Listeye ekle
+                                LISTEYE EKLE
                             </button>
-                            <p id="form-message" class="text-sm text-looma-muted text-center hidden"></p>
+                            <p id="form-message" class="text-sm text-looma-accent text-center hidden pixel-heading"></p>
                         </form>
                     </div>
 
@@ -302,39 +402,39 @@
 
             <!-- Başlık -->
             <div class="text-center mb-12 md:mb-16">
-                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold">Sıkça sorulan sorular</h2>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold pixel-heading">SSS</h2>
             </div>
 
             <!-- FAQ Items -->
             <div class="space-y-6">
 
                 <!-- Soru 1 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8">
-                    <h3 class="text-xl font-semibold mb-3">LOOMA ücretli mi?</h3>
+                <div class="glass-effect rounded-sm p-6 md:p-8 border-2 border-white/5 hover:border-white/10 transition-colors duration-300">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">LOOMA UCRETLI MI?</h3>
                     <p class="text-looma-muted leading-relaxed">
                         LOOMA'nın temel özellikleri ücretsiz olacak. Daha gelişmiş AI özellikleri ve sınırsız kullanım için uygun fiyatlı bir 'Pro' aboneliği sunmayı planlıyoruz.
                     </p>
                 </div>
 
                 <!-- Soru 2 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8">
-                    <h3 class="text-xl font-semibold mb-3">Hangi platformlarda çıkacak?</h3>
+                <div class="glass-effect rounded-sm p-6 md:p-8 border-2 border-white/5 hover:border-white/10 transition-colors duration-300">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">HANGI PLATFORMLARDA CIKACAK?</h3>
                     <p class="text-looma-muted leading-relaxed">
                         İlk etapta Android ve iOS için mobil uygulama olarak yayınlanacak. İleride web arayüzü de değerlendirilir.
                     </p>
                 </div>
 
                 <!-- Soru 3 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8">
-                    <h3 class="text-xl font-semibold mb-3">Hangi AI teknolojilerini kullanıyorsunuz?</h3>
+                <div class="glass-effect rounded-sm p-6 md:p-8 border-2 border-white/5 hover:border-white/10 transition-colors duration-300">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">HANGI AI TEKNOLOJILERI?</h3>
                     <p class="text-looma-muted leading-relaxed">
                         LOOMA, Google Gemini AI ve Google ML Kit gibi modern yapay zeka teknolojileri üzerine kurulu.
                     </p>
                 </div>
 
                 <!-- Soru 4 -->
-                <div class="glass-effect rounded-2xl p-6 md:p-8">
-                    <h3 class="text-xl font-semibold mb-3">Verilerim güvende mi?</h3>
+                <div class="glass-effect rounded-sm p-6 md:p-8 border-2 border-white/5 hover:border-white/10 transition-colors duration-300">
+                    <h3 class="text-xl font-bold mb-3 pixel-heading">VERILERIM GUVENDE MI?</h3>
                     <p class="text-looma-muted leading-relaxed">
                         Veriler Supabase üzerinde güvenli şekilde saklanır. Kendi verine sadece sen erişebilirsin ve istersen hesabını ve tüm verini kalıcı olarak silebilirsin.
                     </p>
@@ -352,23 +452,23 @@
                 <!-- Sol - Logo & Info -->
                 <div class="flex flex-col items-center md:items-start gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-looma-accent to-looma-accent-dark flex items-center justify-center">
-                            <div class="w-4 h-4 border-2 border-white rounded-sm"></div>
+                        <div class="w-8 h-8 rounded-sm bg-white flex items-center justify-center">
+                            <div class="w-4 h-4 border-2 border-looma-dark rounded-[2px]"></div>
                         </div>
-                        <span class="text-sm font-semibold tracking-[0.2em] uppercase">LOOMA</span>
+                        <span class="text-sm font-bold tracking-[0.3em] uppercase pixel-heading">LOOMA</span>
                     </div>
                     <p class="text-sm text-looma-muted">Türkiye çıkışlı AI moda uygulaması</p>
-                    <p class="text-xs text-looma-muted/60">© 2025 LOOMA</p>
+                    <p class="text-xs text-looma-muted/60 pixel-heading">© 2025 LOOMA</p>
                 </div>
 
                 <!-- Sağ - Sosyal Linkler -->
                 <div class="flex items-center gap-4">
-                    <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all duration-200 hover:scale-110" aria-label="Instagram">
+                    <a href="#" class="w-10 h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-110" aria-label="Instagram">
                         <svg class="w-5 h-5 text-looma-muted" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                         </svg>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all duration-200 hover:scale-110" aria-label="X (Twitter)">
+                    <a href="#" class="w-10 h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-110" aria-label="X (Twitter)">
                         <svg class="w-5 h-5 text-looma-muted" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                         </svg>
@@ -411,8 +511,8 @@
                     this.y = y;
                     this.vx = 0;
                     this.vy = 0;
-                    this.size = 1.8 + Math.random() * 0.8; // 1.8 - 2.6
-                    this.alpha = 0.7 + Math.random() * 0.2; // 0.7 - 0.9
+                    this.size = 2; // Square pixel
+                    this.alpha = 0.7 + Math.random() * 0.3; // 0.7 - 1.0
                 }
 
                 update() {
@@ -449,10 +549,9 @@
                 }
 
                 draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(226, 232, 240, ${this.alpha})`;
-                    ctx.fill();
+                    // Pixel style - square particles
+                    ctx.fillStyle = `rgba(229, 231, 235, ${this.alpha})`;
+                    ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
                 }
             }
 
@@ -473,7 +572,7 @@
             // Particle grid oluşturma
             function createParticles(width, height) {
                 particles = [];
-                const spacing = 22;
+                const spacing = 20;
                 const margin = 25;
 
                 const cols = Math.floor((width - margin * 2) / spacing);
@@ -579,9 +678,8 @@
                 console.log('Beta kaydı:', email);
 
                 // Başarı mesajı göster
-                formMessage.textContent = 'Harika! E-posta adresin listeye eklendi. Yakında senden haber vereceğiz.';
+                formMessage.textContent = 'KAYIT BASARILI!';
                 formMessage.classList.remove('hidden');
-                formMessage.classList.add('text-looma-accent');
 
                 // Formu temizle
                 emailInput.value = '';

@@ -568,16 +568,19 @@
             // Resim yükle ve particle'lar oluştur
             function loadImageAndCreateParticles() {
                 const img = new Image();
+                img.crossOrigin = 'anonymous';
                 img.onload = function() {
                     sourceImage = img;
                     imageLoaded = true;
+                    console.log(`Image loaded: ${img.width}x${img.height}`);
                     resizeCanvas();
                 };
                 img.onerror = function() {
-                    console.error('Resim yüklenemedi');
+                    console.error('Resim yüklenemedi. Path: ./assets/looma-logo.PNG');
                     imageLoaded = false;
                 };
                 img.src = './assets/looma-logo.PNG';
+                console.log('Loading image from: ./assets/looma-logo.PNG');
             }
 
             // Canvas boyutunu ayarlama ve image pixel'lerinden particle oluşturma
@@ -628,9 +631,9 @@
                 const imageData = tempCtx.getImageData(0, 0, imgWidth, imgHeight);
                 const data = imageData.data;
 
-                // Piksel spacing (4px aralık = 256 piksel ölçek)
-                const pixelSize = 4; // 2px aralık = çok detaylı
-                const brightnessThreshold = 128; // 0-255, bu değerden daha açık olan pixel'ler
+                // Piksel spacing (2px aralık = daha detaylı)
+                const pixelSize = 2; // 2px = 4x daha detaylı
+                const alphaThreshold = 30; // Yarı şeffaf pixel'leri de seç
 
                 // Her pixel'i kontrol et
                 for (let y = 0; y < imgHeight; y += pixelSize) {
@@ -641,20 +644,18 @@
                         const b = data[index + 2];
                         const a = data[index + 3];
 
-                        // Alpha check + brightness check
-                        if (a > 128) {
-                            const brightness = (r + g + b) / 3;
-                            // Açık pixel'leri seç (logo'nun görünür kısımları)
-                            if (brightness > brightnessThreshold || a === 255) {
-                                // Jitter ekle
-                                const px = offsetX + x * scale + (Math.random() - 0.5) * 2;
-                                const py = offsetY + y * scale + (Math.random() - 0.5) * 2;
+                        // Alpha check - görünür pixel'leri seç
+                        if (a > alphaThreshold) {
+                            // Jitter ekle
+                            const px = offsetX + x * scale + (Math.random() - 0.5) * 2;
+                            const py = offsetY + y * scale + (Math.random() - 0.5) * 2;
 
-                                particles.push(new Particle(px, py));
-                            }
+                            particles.push(new Particle(px, py));
                         }
                     }
                 }
+
+                console.log(`Particles created: ${particles.length}`);
             }
 
             // Animasyon döngüsü

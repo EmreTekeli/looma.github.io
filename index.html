@@ -478,7 +478,7 @@
     <!-- JAVASCRIPT -->
     <script>
         // ==========================================
-        // PIXEL PARTICLE SILHOUETTE ANIMATION
+        // PIXEL PARTICLE IMAGE ANIMATION
         // ==========================================
 
         (function() {
@@ -490,6 +490,8 @@
             let animationFrameId = null;
             let canvasWidth = 0;
             let canvasHeight = 0;
+            let imageLoaded = false;
+            let sourceImage = null;
 
             // Mouse state
             const mouse = {
@@ -563,62 +565,22 @@
                 }
             }
 
-            // Telefon silüeti içinde mi kontrol et
-            function isInsidePhoneSilhouette(x, y, centerX, centerY, phoneW, phoneH) {
-                const cornerRadius = 40;
-
-                // Telefon sınırları
-                const left = centerX - phoneW / 2;
-                const right = centerX + phoneW / 2;
-                const top = centerY - phoneH / 2;
-                const bottom = centerY + phoneH / 2;
-
-                // Basit dikdörtgen check
-                if (x < left || x > right || y < top || y > bottom) {
-                    return false;
-                }
-
-                // Köşe radius kontrolü (4 köşe)
-                // Sol üst
-                if (x < left + cornerRadius && y < top + cornerRadius) {
-                    const dx = x - (left + cornerRadius);
-                    const dy = y - (top + cornerRadius);
-                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
-                }
-                // Sağ üst
-                if (x > right - cornerRadius && y < top + cornerRadius) {
-                    const dx = x - (right - cornerRadius);
-                    const dy = y - (top + cornerRadius);
-                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
-                }
-                // Sol alt
-                if (x < left + cornerRadius && y > bottom - cornerRadius) {
-                    const dx = x - (left + cornerRadius);
-                    const dy = y - (bottom - cornerRadius);
-                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
-                }
-                // Sağ alt
-                if (x > right - cornerRadius && y > bottom - cornerRadius) {
-                    const dx = x - (right - cornerRadius);
-                    const dy = y - (bottom - cornerRadius);
-                    if (dx * dx + dy * dy > cornerRadius * cornerRadius) return false;
-                }
-
-                // Notch bölgesini çıkar (üst orta)
-                const notchWidth = phoneW * 0.3;
-                const notchHeight = 20;
-                const notchLeft = centerX - notchWidth / 2;
-                const notchRight = centerX + notchWidth / 2;
-                const notchBottom = top + notchHeight;
-
-                if (x >= notchLeft && x <= notchRight && y >= top && y <= notchBottom) {
-                    return false;
-                }
-
-                return true;
+            // Resim yükle ve particle'lar oluştur
+            function loadImageAndCreateParticles() {
+                const img = new Image();
+                img.onload = function() {
+                    sourceImage = img;
+                    imageLoaded = true;
+                    resizeCanvas();
+                };
+                img.onerror = function() {
+                    console.error('Resim yüklenemedi');
+                    imageLoaded = false;
+                };
+                img.src = './assets/looma-logo.PNG';
             }
 
-            // Canvas boyutunu ayarlama ve particle silüet oluşturma
+            // Canvas boyutunu ayarlama ve image pixel'lerinden particle oluşturma
             function resizeCanvas() {
                 const rect = canvas.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
@@ -631,35 +593,65 @@
                 canvasWidth = rect.width;
                 canvasHeight = rect.height;
 
-                // Telefon boyutları
-                const phoneHeight = canvasHeight * 0.65;
-                const phoneWidth = phoneHeight * 0.48; // Telefon aspect ratio
-                const centerX = canvasWidth / 2;
-                const centerY = canvasHeight / 2;
-
-                // Particle silüeti oluştur
-                createPhoneSilhouette(centerX, centerY, phoneWidth, phoneHeight);
+                if (imageLoaded && sourceImage) {
+                    createParticlesFromImage();
+                }
             }
 
-            // Telefon silüeti şeklinde particle oluştur
-            function createPhoneSilhouette(centerX, centerY, phoneW, phoneH) {
+            // Resim'den pixel'leri okuyup particle oluştur
+            function createParticlesFromImage() {
                 particles = [];
-                const spacing = 4; // Piksel aralığı (daha detaylı, 2x küçük)
-                const jitter = 1; // Rastgelelik için (daha hassas)
 
-                // Grid tarama
-                const left = centerX - phoneW / 2;
-                const top = centerY - phoneH / 2;
+                if (!sourceImage) return;
 
-                for (let x = left; x < left + phoneW; x += spacing) {
-                    for (let y = top; y < top + phoneH; y += spacing) {
-                        // Jitter ekle
-                        const px = x + (Math.random() - 0.5) * jitter;
-                        const py = y + (Math.random() - 0.5) * jitter;
+                // Resimi canvas'a çiz (temporary)
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
 
-                        // Telefon silüeti içinde mi?
-                        if (isInsidePhoneSilhouette(px, py, centerX, centerY, phoneW, phoneH)) {
-                            particles.push(new Particle(px, py));
+                // Resim boyutları
+                const imgWidth = sourceImage.width;
+                const imgHeight = sourceImage.height;
+
+                // Canvas boyutuna göre scale
+                let scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight) * 0.8;
+                const displayWidth = imgWidth * scale;
+                const displayHeight = imgHeight * scale;
+                const offsetX = (canvasWidth - displayWidth) / 2;
+                const offsetY = (canvasHeight - displayHeight) / 2;
+
+                // Temporary canvas'a resmi çiz
+                tempCanvas.width = imgWidth;
+                tempCanvas.height = imgHeight;
+                tempCtx.drawImage(sourceImage, 0, 0);
+
+                // ImageData al
+                const imageData = tempCtx.getImageData(0, 0, imgWidth, imgHeight);
+                const data = imageData.data;
+
+                // Piksel spacing (4px aralık = 256 piksel ölçek)
+                const pixelSize = 4; // 2px aralık = çok detaylı
+                const brightnessThreshold = 128; // 0-255, bu değerden daha açık olan pixel'ler
+
+                // Her pixel'i kontrol et
+                for (let y = 0; y < imgHeight; y += pixelSize) {
+                    for (let x = 0; x < imgWidth; x += pixelSize) {
+                        const index = (y * imgWidth + x) * 4;
+                        const r = data[index];
+                        const g = data[index + 1];
+                        const b = data[index + 2];
+                        const a = data[index + 3];
+
+                        // Alpha check + brightness check
+                        if (a > 128) {
+                            const brightness = (r + g + b) / 3;
+                            // Açık pixel'leri seç (logo'nun görünür kısımları)
+                            if (brightness > brightnessThreshold || a === 255) {
+                                // Jitter ekle
+                                const px = offsetX + x * scale + (Math.random() - 0.5) * 2;
+                                const py = offsetY + y * scale + (Math.random() - 0.5) * 2;
+
+                                particles.push(new Particle(px, py));
+                            }
                         }
                     }
                 }
@@ -731,7 +723,7 @@
             });
 
             // Başlangıç
-            resizeCanvas();
+            loadImageAndCreateParticles();
             animate();
         })();
 

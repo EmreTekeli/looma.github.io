@@ -120,9 +120,17 @@
             }
         }
 
-        .scanline-container {
-            position: relative;
-            overflow: hidden;
+        @keyframes liveGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(229, 231, 235, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(229, 231, 235, 0);
+            }
+        }
+
+        .live-badge {
+            animation: liveGlow 2.5s infinite;
         }
 
         .scanline-container::before {
@@ -206,10 +214,13 @@
 
                 <!-- Sağ Kolon - Canvas Animasyon -->
                 <div class="relative w-full animate-fade-in animate-delay-200">
-                    <div class="scanline-container relative aspect-square max-h-[250px] md:max-h-[450px] lg:max-h-[500px] w-full rounded-sm glass-effect overflow-hidden border-2 border-white/10">
+                    <div class="scanline-container relative aspect-square max-h-[250px] md:max-h-[450px] lg:max-h-[550px] w-full rounded-lg glass-effect overflow-hidden border-2 border-white/20 shadow-xl shadow-black/30 transition-all duration-300 hover:border-white/30">
                         <!-- Live Preview Badge -->
-                        <div class="absolute top-4 left-4 z-10 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-sm border border-white/20">
-                            <span class="text-xs font-bold tracking-wider uppercase text-looma-accent pixel-heading">LIVE</span>
+                        <div class="live-badge absolute top-4 left-4 z-10 px-4 py-2 bg-black/70 backdrop-blur-sm rounded-sm border-2 border-looma-accent/50 transition-all duration-300 hover:border-looma-accent">
+                            <span class="text-xs font-bold tracking-widest uppercase text-looma-accent pixel-heading flex items-center gap-2">
+                                <span class="w-2 h-2 bg-looma-accent rounded-full animate-pulse"></span>
+                                LIVE
+                            </span>
                         </div>
 
                         <!-- Canvas -->

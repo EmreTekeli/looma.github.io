@@ -576,11 +576,11 @@
                     resizeCanvas();
                 };
                 img.onerror = function() {
-                    console.error('Resim yüklenemedi. Path: /assets/looma-logo.png');
+                    console.error('Resim yüklenemedi. Path: https://raw.githubusercontent.com/EmreTekeli/looma.github.io/main/assets/looma-logo.png');
                     imageLoaded = false;
                 };
-                img.src = '/assets/looma-logo.png';
-                console.log('Loading image from: /assets/looma-logo.png');
+                img.src = 'https://raw.githubusercontent.com/EmreTekeli/looma.github.io/main/assets/looma-logo.png';
+                console.log('Loading image from: https://raw.githubusercontent.com/EmreTekeli/looma.github.io/main/assets/looma-logo.png');
             }
 
             // Canvas boyutunu ayarlama ve image pixel'lerinden particle oluşturma

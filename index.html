@@ -874,6 +874,169 @@
         })();
 
         // ==========================================
+        // ICON PARTICLE SCATTERING EFFECT
+        // ==========================================
+
+        (function() {
+            const iconContainer = document.querySelectorAll('[data-icon-particle]');
+
+            // Icon Particle class
+            class IconParticle {
+                constructor(x, y) {
+                    this.ox = x;
+                    this.oy = y;
+                    this.x = x;
+                    this.y = y;
+                    this.vx = (Math.random() - 0.5) * 4;
+                    this.vy = (Math.random() - 0.5) * 4 - 1;
+                    this.life = 1;
+                    this.decay = 0.015;
+                    this.friction = 0.92;
+                    this.springForce = 0.08;
+                }
+
+                update(isActive) {
+                    if (isActive) {
+                        // Scatter away
+                        this.vx += (Math.random() - 0.5) * 0.3;
+                        this.vy += 0.15; // Gravity
+                        this.vx *= this.friction;
+                        this.vy *= this.friction;
+                    } else {
+                        // Return to original position
+                        const dx = this.ox - this.x;
+                        const dy = this.oy - this.y;
+                        this.vx += dx * this.springForce;
+                        this.vy += dy * this.springForce;
+                        this.vx *= 0.9;
+                        this.vy *= 0.9;
+                    }
+
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.life = Math.max(0, this.life - this.decay);
+                }
+            }
+
+            // Create particle system for each icon
+            function initIconParticles(element) {
+                const svg = element.querySelector('svg');
+                if (!svg) return;
+
+                // Get SVG bounding box
+                const svgRect = svg.getBoundingClientRect();
+                const parentRect = element.getBoundingClientRect();
+
+                let particles = [];
+                let isScattered = false;
+                let animationActive = false;
+
+                // Create particles from SVG - optimize with limited count
+                function createParticles() {
+                    particles = [];
+                    const particleCount = 12; // Optimized untuk performance
+
+                    for (let i = 0; i < particleCount; i++) {
+                        const x = svgRect.width / 2 + (Math.random() - 0.5) * svgRect.width * 0.6;
+                        const y = svgRect.height / 2 + (Math.random() - 0.5) * svgRect.height * 0.6;
+                        particles.push(new IconParticle(x, y));
+                    }
+                }
+
+                // Draw particles on SVG
+                function drawParticles() {
+                    // Create canvas overlay if not exists
+                    let canvas = element.querySelector('canvas[data-icon-canvas]');
+                    if (!canvas) {
+                        canvas = document.createElement('canvas');
+                        canvas.setAttribute('data-icon-canvas', '');
+                        canvas.style.position = 'absolute';
+                        canvas.style.top = svgRect.top - parentRect.top + 'px';
+                        canvas.style.left = svgRect.left - parentRect.left + 'px';
+                        canvas.style.pointerEvents = 'none';
+                        element.style.position = 'relative';
+                        element.appendChild(canvas);
+                    }
+
+                    const dpr = window.devicePixelRatio || 1;
+                    canvas.width = svgRect.width * dpr;
+                    canvas.height = svgRect.height * dpr;
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(dpr, dpr);
+
+                    // Clear and draw particles
+                    ctx.clearRect(0, 0, svgRect.width, svgRect.height);
+
+                    for (let p of particles) {
+                        if (p.life > 0) {
+                            ctx.fillStyle = `rgba(229, 231, 235, ${p.life * 0.9})`;
+                            ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+                        }
+                    }
+                }
+
+                // Animation loop for this icon
+                function animateIcon() {
+                    for (let p of particles) {
+                        p.update(isScattered);
+                    }
+                    drawParticles();
+
+                    // Check if animation should continue
+                    if (isScattered || particles.some(p => p.life > 0)) {
+                        animationActive = true;
+                        requestAnimationFrame(animateIcon);
+                    } else {
+                        animationActive = false;
+                    }
+                }
+
+                // Event listeners
+                element.addEventListener('mouseenter', () => {
+                    createParticles();
+                    isScattered = true;
+                    if (!animationActive) {
+                        animateIcon();
+                    }
+                });
+
+                element.addEventListener('mouseleave', () => {
+                    isScattered = false;
+                    if (!animationActive) {
+                        animateIcon();
+                    }
+                });
+            }
+
+            // Initialize all icon elements with data-icon-particle attribute
+            document.querySelectorAll('.group:has(svg)').forEach((element, index) => {
+                // Only add particle effect to icons on lg+ screens
+                if (window.innerWidth >= 1024) {
+                    element.setAttribute('data-icon-particle', index);
+                    initIconParticles(element);
+                }
+            });
+
+            // Reinit on resize (for responsive)
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    document.querySelectorAll('[data-icon-particle]').forEach(el => {
+                        const canvas = el.querySelector('canvas[data-icon-canvas]');
+                        if (canvas) canvas.remove();
+                    });
+                    document.querySelectorAll('.group:has(svg)').forEach((element, index) => {
+                        if (window.innerWidth >= 1024) {
+                            element.setAttribute('data-icon-particle', index);
+                            initIconParticles(element);
+                        }
+                    });
+                }, 250);
+            });
+        })();
+
+        // ==========================================
         // BETA FORM HANDLER
         // ==========================================
 
